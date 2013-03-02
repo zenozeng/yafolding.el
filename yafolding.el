@@ -3,7 +3,7 @@
 ;; Copyright (C) 2013  Zeno Zeng
 
 ;; Author: Zeno Zeng <zenoes@qq.com>
-;; Keywords: 
+;; keywords: 
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; Folding code blocks based on indeneation
+;; Folding code blocks based on indentation
 
 ;;; Code:
 
@@ -30,12 +30,22 @@
   (interactive)
   (defun get-overlay ()
     (save-excursion
-      (goto-char (line-end-position))
-      (let ((overlay (car (overlays-at (- (point) 1)))))
-	(if (and
-	     overlay
-	     (member "zeno-folding" (overlay-properties overlay)))
-	    overlay))))
+      (let ((overlays (overlays-in
+		       (progn (move-beginning-of-line nil) (point))
+		       (progn (move-end-of-line nil) (point))))
+	    (overlay)
+	    (the-overlay)
+	    (point-delta 0))
+	(while (car overlays)
+	  (setq overlay (pop overlays))
+	  ;; get the outer overlay
+	  (when (member "zeno-folding" (overlay-properties overlay))
+	    (let ((overlay-point-delta (- (overlay-end overlay)
+					  (overlay-start overlay))))
+	      (when (> overlay-point-delta point-delta)
+		(setq point-delta overlay-point-delta)
+		(setq the-overlay overlay)))))
+	the-overlay)))
 
   (defun get-first-line-data()
     (save-excursion
@@ -67,6 +77,7 @@
 
   (defun hide ()
     (save-excursion
+      (message "hide")
       (let* ((parent-level (get-column))
 	     (beg (line-end-position))
 	     (end beg)
@@ -76,7 +87,8 @@
 	(get-first-line-data)
 	(when (is-child)
 	  (while (and (is-child)
-		      (search-forward "\n" nil t nil)))
+		      (next-line-exists-p))
+	    (my-next-line))
 	  (unless (is-child)
 	    (previous-line))
 	  (setq end (line-end-position))
@@ -122,20 +134,15 @@
 
   (defun is-child()
     (or (> (get-column) parent-level)
-	(line-string-match-p "^[ {}\t]*$")))
+	(and (= (get-column) parent-level)
+	     (line-string-match-p "^[ {}\t]*$"))
+	(line-string-match-p "^[ \t]*$")))
 
   (defun my-next-line()
     (search-forward "\n" nil t nil))
 
   (if (get-overlay)
-      (if (line-string-match-p "^[ \t]*$") ; make sure we are still at the same line
-	  (progn
-	    (message "at t")
-	    (backward-char)
-	    (show)
-	    (forward-char)
-	    )
-	(show))
+      (show)
     (if (line-string-match-p "[^ \t]+")
 	(hide))))
 
