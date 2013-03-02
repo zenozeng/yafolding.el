@@ -2,6 +2,23 @@
 
 Folding code blocks based on indentation.  
 
+## ScreenShot
+![Alt text](https://raw.github.com/zenozeng/yafolding.el/master/psc.png)
+
+
+## Config Example
+
+```emacs-lisp
+
+(define-key global-map (kbd "C-'") 'yafolding)
+
+(add-hook 'emacs-lisp-mode-hook
+	  (lambda ()
+	    (yafolding-hide-all 2)))
+
+```
+
+
 ## Licensing
 
 This program is free software; you can redistribute it and/or modify
@@ -18,14 +35,3 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-## Config Example
-
-```emacs-lisp
-
-(define-key global-map (kbd "C-'") 'yafolding)
-
-(add-hook 'emacs-lisp-mode-hook
-	  (lambda ()
-	    (yafolding-hide-all 2)))
-
-```
