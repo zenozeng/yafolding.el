@@ -25,7 +25,7 @@
 ;;; Code:
 
 ;;;###autoload
-(defun yafolding (&optional level)
+(defun yafolding ()
   "floding based on indeneation"
   (interactive)
 
@@ -140,10 +140,53 @@
     (if (line-string-match-p "[^ \t]+")
 	(hide))))
 
-(defun yafolding-hide-all(level)
-  )
 
-(defun yafolding-show-all())
+;;;###autoload
+(defun yafolding-hide-all(level)
+  (interactive)
+  
+  (defun line-string-match-p(regexp)
+    (string-match-p regexp
+		    (buffer-substring-no-properties
+		     (line-beginning-position)
+		     (line-end-position))))
+  (defun get-column()
+    (back-to-indentation)
+    (current-column))
+  (defun get-level()
+    (defun iter()
+      (if (<= (get-column) (car levels))
+	  (progn
+	    (pop levels)
+	    (iter))
+	(progn
+	  (push (get-column) levels)
+	  (length levels))))
+    (if (= 0 (get-column))
+	(progn
+	  (setq levels '(0))
+	  1)
+      (iter)))
+  
+  (yafolding-show-all)
+  ;; level => column
+  (goto-char (point-min))
+  (let ((levels '(0)))
+    (while (search-forward "\n" nil t nil)
+      (unless (line-string-match-p "^[ \t]$")
+	(forward-char) ; 防止停留在overlay的最后导致重复toggle
+	(when (= (get-level) level)
+	  (yafolding))))))
+
+;;;###autoload
+(defun yafolding-show-all()
+  (interactive)
+  (let ((overlays (overlays-in (point-min) (point-max)))
+	(overlay))
+    (while (car overlays)
+      (setq overlay (pop overlays))
+      (if (member "zeno-folding" (overlay-properties overlay))
+	  (delete-overlay overlay)))))
 
 
 (provide 'yafolding)
