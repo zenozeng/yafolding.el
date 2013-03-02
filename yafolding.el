@@ -77,7 +77,6 @@
 
   (defun hide ()
     (save-excursion
-      (message "hide")
       (let* ((parent-level (get-column))
 	     (beg (line-end-position))
 	     (end beg)
@@ -125,8 +124,8 @@
 		     (line-end-position))))
 
   (defun next-line-exists-p()
-    (save-excursion
-      (search-forward "\n" nil t nil)))
+    (< (line-number-at-pos (point))
+       (line-number-at-pos (point-max))))
 
   (defun previous-line-exists-p()
     (save-excursion
@@ -139,7 +138,10 @@
 	(line-string-match-p "^[ \t]*$")))
 
   (defun my-next-line()
-    (next-line))
+    "next logical line and skip overlay at the same time"
+    (let ((line (line-number-at-pos (point))))
+      (while (= (line-number-at-pos (point)) line)
+	(next-line))))
 
   (if (get-overlay)
       (show)
@@ -158,6 +160,17 @@
   (defun get-column()
     (back-to-indentation)
     (current-column))
+
+  (defun my-next-line()
+    "next logical line and skip overlay at the same time"
+    (let ((line (line-number-at-pos (point))))
+      (while (= (line-number-at-pos (point)) line)
+	(next-line))))
+
+  (defun next-line-exists-p()
+    (< (line-number-at-pos (point))
+       (line-number-at-pos (point-max))))
+
   (defun get-level()
     (defun iter()
       (if (<= (get-column) (car levels))
@@ -175,13 +188,16 @@
   
   (yafolding-show-all)
   ;; level => column
-  (goto-char (point-min))
-  (let ((levels '(0)))
-    (while (search-forward "\n" nil t nil)
-      (unless (line-string-match-p "^[ \t]$")
-	(forward-char) ; 防止停留在overlay的最后导致重复toggle
-	(when (= (get-level) level)
-	  (yafolding))))))
+  (ignore-errors
+    (save-excursion
+      (goto-char (point-min))
+      (let ((levels '(0)))
+	(while (next-line-exists-p)
+	  (my-next-line)
+	  (unless (line-string-match-p "^[ \t]$")
+	    (forward-char) ; 防止停留在overlay的最后导致重复toggle
+	    (when (= (get-level) level)
+	      (yafolding))))))))
 
 ;;;###autoload
 (defun yafolding-show-all()
