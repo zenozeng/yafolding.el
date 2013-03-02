@@ -25,7 +25,7 @@
 ;;; Code:
 
 ;;;###autoload
-(defun yafloding ()
+(defun yafolding (&optional level)
   "floding based on indeneation"
   (interactive)
 
@@ -63,7 +63,8 @@
       ))
 
   (defun show ()
-    (delete-overlay (get-overlay)))
+    (save-excursion
+      (delete-overlay (get-overlay))))
 
   (defun hide ()
     (save-excursion
@@ -127,13 +128,22 @@
   (defun my-next-line()
     (search-forward "\n" nil t nil))
 
+  (if (get-overlay)
+      (if (line-string-match-p "^[ \t]*$") ; make sure we are still at the same line
+	  (progn
+	    (message "at t")
+	    (backward-char)
+	    (show)
+	    (forward-char)
+	    )
+	(show))
+    (if (line-string-match-p "[^ \t]+")
+	(hide))))
 
-  ;; 若非在空行，则执行
-  (if (line-string-match-p "[^ \t]+")
-    (if (get-overlay)
-	(show)
-      (hide))))
+(defun yafolding-hide-all(level)
+  )
 
+(defun yafolding-show-all())
 
 
 (provide 'yafolding)
