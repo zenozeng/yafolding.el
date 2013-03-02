@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; 
+;; Folding code blocks based on indeneation
 
 ;;; Code:
 
@@ -28,7 +28,6 @@
 (defun yafolding ()
   "floding based on indeneation"
   (interactive)
-
   (defun get-overlay ()
     (save-excursion
       (goto-char (line-end-position))
@@ -143,8 +142,7 @@
 
 ;;;###autoload
 (defun yafolding-hide-all(level)
-  (interactive)
-  
+  (interactive "nLevel:")
   (defun line-string-match-p(regexp)
     (string-match-p regexp
 		    (buffer-substring-no-properties
@@ -187,6 +185,7 @@
       (setq overlay (pop overlays))
       (if (member "zeno-folding" (overlay-properties overlay))
 	  (delete-overlay overlay)))))
+
 
 
 (provide 'yafolding)
