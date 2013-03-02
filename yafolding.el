@@ -139,7 +139,7 @@
 	(line-string-match-p "^[ \t]*$")))
 
   (defun my-next-line()
-    (search-forward "\n" nil t nil))
+    (next-line))
 
   (if (get-overlay)
       (show)
