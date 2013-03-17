@@ -67,10 +67,10 @@
 	(previous-line))
       (if (line-string-match-p "^[ }\t]*$")
 	  (setq last-line-data "}"))
+      (if (line-string-match-p "^[ )\t]*$")
+	  (setq last-line-data ")"))
       (if (line-string-match-p "^[ });\t]*$")
 	  (setq last-line-data "});"))
-      (if (line-string-match-p "^[ \\)\t]*$")
-	  (setq last-line-data ")"))
       ))
 
   (defun show ()
@@ -139,7 +139,7 @@
   (defun is-child()
     (or (> (get-column) parent-level)
 	(and (= (get-column) parent-level)
-	     (line-string-match-p "^[ {}\t]*$"))
+	     (line-string-match-p "^[ {});\t]*$"))
 	(line-string-match-p "^[ \t]*$")))
 
   (defun my-next-line()
