@@ -100,6 +100,7 @@
 	      (let ((new-overlay (make-overlay beg end)))
 		(overlay-put new-overlay 'invisible t)
 		(overlay-put new-overlay 'intangible t)
+		(overlay-put new-overlay 'isearch-open-invisible-temporary t)
 		(overlay-put new-overlay 'modification-hooks
 			     (list (lambda (overlay &optional a b c d)
 				     (delete-overlay overlay))))
