@@ -24,7 +24,6 @@
 
 ;;; Code:
 
-;;;###autoload
 (defun yafolding ()
   "floding based on indeneation"
   (interactive)
@@ -100,7 +99,7 @@
 	      (let ((new-overlay (make-overlay beg end)))
 		(overlay-put new-overlay 'invisible t)
 		(overlay-put new-overlay 'intangible t)
-		(overlay-put new-overlay 'isearch-open-invisible-temporary t)
+		(overlay-put new-overlay 'isearch-open-invisible-temporary 'hs-isearch-show-temporary)
 		(overlay-put new-overlay 'modification-hooks
 			     (list (lambda (overlay &optional a b c d)
 				     (delete-overlay overlay))))
@@ -155,7 +154,6 @@
 	(hide))))
 
 
-;;;###autoload
 (defun yafolding-hide-all(level)
   (interactive "nLevel:")
   (defun line-string-match-p(regexp)
@@ -205,7 +203,6 @@
 	    (when (= (get-level) level)
 	      (yafolding))))))))
 
-;;;###autoload
 (defun yafolding-show-all()
   (interactive)
   (let ((overlays (overlays-in (point-min) (point-max)))
@@ -215,7 +212,16 @@
       (if (member "zeno-folding" (overlay-properties overlay))
 	  (delete-overlay overlay)))))
 
+(defun yafolding-temp-toggle(hide-p)
+  (let ((overlays (overlays-in (point-min) (point-max)))
+	(overlay))
+    (while (car overlays)
+      (setq overlay (pop overlays))
+      (if (member "zeno-folding" (overlay-properties overlay))
+	  (overlay-put overlay 'invisible hide-p)))))
 
+(add-hook 'isearch-mode-hook (lambda() (yafolding-temp-toggle nil)))
+(add-hook 'isearch-mode-end-hook (lambda() (yafolding-temp-toggle t)))
 
 (provide 'yafolding)
 ;;; yafolding.el ends here
