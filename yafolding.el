@@ -211,6 +211,20 @@
       (setq overlay (pop overlays))
       (if (member "zeno-folding" (overlay-properties overlay))
 	  (delete-overlay overlay)))))
+(defun yafolding-toggle-all(&optional level)
+  (interactive)
+  (unless level
+    (setq level 1))
+  (let ((overlays (overlays-in (point-min) (point-max)))
+	(overlay)
+	(previous-hide-p nil))
+    (while (car overlays)
+      (setq overlay (pop overlays))
+      (when (member "zeno-folding" (overlay-properties overlay))
+	  (delete-overlay overlay)
+	  (setq previous-hide-p t)))
+    (unless previous-hide-p
+      (yafolding-hide-all level))))
 
 (defun yafolding-temp-toggle(hide-p)
   (let ((overlays (overlays-in (point-min) (point-max)))

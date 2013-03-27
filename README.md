@@ -11,10 +11,7 @@ Folding code blocks based on indentation.
 ```emacs-lisp
 
 (define-key global-map (kbd "C-'") 'yafolding)
-
-(add-hook 'emacs-lisp-mode-hook
-	  (lambda ()
-	    (yafolding-hide-all 2)))
+(define-key global-map (kbd "C-c C-f") 'yafolding-toggle-all)
 
 ```
 
