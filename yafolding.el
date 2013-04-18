@@ -66,6 +66,8 @@
 	(previous-line))
       (if (line-string-match-p "^[ });\t]*$")
 	  (setq last-line-data "});"))
+      (if (line-string-match-p "^[ };\t]*$")
+	  (setq last-line-data "};"))
       (if (line-string-match-p "^[ }\t]*$")
 	  (setq last-line-data "}"))
       (if (line-string-match-p "^[ )\t]*$")
