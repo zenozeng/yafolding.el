@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoes@qq.com>
 ;; keywords:
-;; Time-stamp: <2013-05-23 21:31:01 Zeno Zeng>
+;; Time-stamp: <2013-05-23 21:46:17 Zeno Zeng>
 
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -25,13 +25,6 @@
 ;; Folding code blocks based on indentation
 
 ;;; Code:
-
-
-;; use (current-indentation) instead
-(defun current-indentation()
-  "Get the column of indentation"
-  (back-to-indentation)
-  (current-column))
 
 (defun yafolding-line-string-match-p(regexp)
   "Test if current line match the regexp"
@@ -57,27 +50,6 @@
      (line-number-at-pos (point-min))))
 
 
-(defun yafolding-get-overlay ()
-  "Return the yafolding's overlay in current line"
-  (save-excursion
-    (let ((overlays (overlays-in
-                     (line-beginning-position)
-                     (line-end-position)))
-          (overlay)
-          (the-overlay)
-          (point-delta 0))
-      (while (car overlays)
-        (setq overlay (pop overlays))
-        ;; get the outer overlay
-        (when (member "zeno-folding" (overlay-properties overlay))
-          (let ((overlay-point-delta (- (overlay-end overlay)
-                                        (overlay-start overlay))))
-            (when (> overlay-point-delta point-delta)
-              (setq point-delta overlay-point-delta)
-              (setq the-overlay overlay)))))
-      the-overlay)))
-
-
 ;; 分隔符 ------------------
 
 (defun yafolding-get-level()
@@ -95,10 +67,27 @@
 	1)
     (yafolding-get-level-iter)))
 
-
 (defun yafolding ()
   "floding based on indeneation"
   (interactive)
+  (defun yafolding-get-overlay ()
+    (save-excursion
+      (let ((overlays (overlays-in
+		       (progn (move-beginning-of-line nil) (point))
+		       (progn (move-end-of-line nil) (point))))
+	    (overlay)
+	    (the-overlay)
+	    (point-delta 0))
+	(while (car overlays)
+	  (setq overlay (pop overlays))
+	  ;; get the outer overlay
+	  (when (member "zeno-folding" (overlay-properties overlay))
+	    (let ((overlay-point-delta (- (overlay-end overlay)
+					  (overlay-start overlay))))
+	      (when (> overlay-point-delta point-delta)
+		(setq point-delta overlay-point-delta)
+		(setq the-overlay overlay)))))
+	the-overlay)))
 
   (defun yafolding-get-first-line-data()
     (save-excursion
@@ -109,7 +98,8 @@
       (if (yafolding-line-string-match-p "^[ {\t]*$")
 	  (setq first-line-data "{"))
       (if (yafolding-line-string-match-p "^[ \\(\t]*$")
-	  (setq first-line-data "("))))
+	  (setq first-line-data "("))
+      ))
 
   (defun yafolding-get-last-line-data()
     (save-excursion
@@ -133,7 +123,7 @@
 
   (defun yafolding-hide ()
     (save-excursion
-      (let* ((parent-level (current-indentation))
+      (let* ((parent-level (yafolding-get-column))
 	     (beg (line-end-position))
 	     (end beg)
 	     (first-line-data)
@@ -162,7 +152,7 @@
 
 		;; for emacs-lisp-mode
 		(if (and
-		     (equal major-mode 'emacs-lisp-Mode)
+		     (equal major-mode 'emacs-lisp-mode)
 		     (not last-line-data))
 		    (setq last-line-data ")"))
 
@@ -176,9 +166,13 @@
 
 
 
+  (defun previous-line-exists-p()
+    (save-excursion
+      (search-backward "\n" nil t nil)))
+
   (defun is-child()
-    (or (> (current-indentation) parent-level)
-	(and (= (current-indentation) parent-level)
+    (or (> (yafolding-get-column) parent-level)
+	(and (= (yafolding-get-column) parent-level)
 	     (yafolding-line-string-match-p "^[ {});\t]*$"))
 	(yafolding-line-string-match-p "^[ \t]*$")))
 
@@ -186,7 +180,6 @@
       (yafolding-show)
     (if (yafolding-line-string-match-p "[^ \t]+")
 	(yafolding-hide))))
-
 
 (defun yafolding-hide-all(level)
   (interactive "nLevel:")
