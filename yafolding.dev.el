@@ -4,7 +4,8 @@
 
 ;; Author: Zeno Zeng <zenoes@qq.com>
 ;; keywords:
-;; Time-stamp: <2013-05-23 22:10:38 Zeno Zeng>
+;; Time-stamp: <2013-05-23 22:29:08 Zeno Zeng>
+;; Version: 0.0.2
 
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -43,10 +44,8 @@
   (> (line-number-at-pos (point))
      (line-number-at-pos (point-min))))
 
-
-;; 分隔符 ------------------
-
 (defun yafolding-get-level()
+  "Get the indent level of current line"
   (defun yafolding-get-level-iter()
     (if (<= (current-indentation) (car levels))
 	(progn
@@ -62,7 +61,7 @@
     (yafolding-get-level-iter)))
 
 (defun yafolding ()
-  "floding based on indeneation"
+  "Floding based on indeneation"
   (interactive)
   (defun yafolding-get-overlay ()
     (save-excursion
@@ -99,8 +98,8 @@
     (save-excursion
       (while (and
 	      (yafolding-line-string-match-p "^[ \t]*$")
-	      (previous-line-exists-p))
-	(previous-line))
+	      (yafolding-previous-line-exists-p))
+	(forward-line -1))
       (if (yafolding-line-string-match-p "^[ });\t]*$")
           (setq last-line-data "});"))
       (if (yafolding-line-string-match-p "^[ };\t]*$")
@@ -129,7 +128,7 @@
 		      (yafolding-next-line-exists-p))
 	    (forward-line))
 	  (unless (is-child)
-	    (previous-line))
+	    (forward-line -1))
 	  (setq end (line-end-position))
 	  (yafolding-get-last-line-data)
 
@@ -156,10 +155,6 @@
 		  (overlay-put new-overlay 'before-string "..."))
 		(if last-line-data
 		    (overlay-put new-overlay 'after-string last-line-data))))))))
-
-  (defun previous-line-exists-p()
-    (save-excursion
-      (search-backward "\n" nil t nil)))
 
   (defun is-child()
     (or (> (yafolding-get-column) parent-level)
@@ -204,7 +199,6 @@
   (interactive)
   (unless level
     (setq level 1))
-  (message "lev:%d" level)
   (let ((overlays (overlays-in (point-min) (point-max)))
 	(overlay)
 	(previous-hide-p nil))
