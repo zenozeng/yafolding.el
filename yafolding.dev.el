@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoes@qq.com>
 ;; keywords:
-;; Time-stamp: <2013-05-23 20:44:50 Zeno Zeng>
+;; Time-stamp: <2013-05-23 21:31:01 Zeno Zeng>
 
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,9 @@
 
 ;;; Code:
 
-(defun yafolding-get-column()
+
+;; use (current-indentation) instead
+(defun current-indentation()
   "Get the column of indentation"
   (back-to-indentation)
   (current-column))
@@ -46,13 +48,13 @@
 
 (defun yafolding-next-line-exists-p()
   "Test if next line exists"
-  (< (line-end-position)
-     (line-number-at-pos (point-max))))
-
-(defun yafolding-next-line-exists-p()
-  "Test if next line exists"
   (< (line-number-at-pos (point))
      (line-number-at-pos (point-max))))
+
+(defun yafolding-previous-line-exists-p()
+  "Test if previous line exists"
+  (> (line-number-at-pos (point))
+     (line-number-at-pos (point-min))))
 
 
 (defun yafolding-get-overlay ()
@@ -80,14 +82,14 @@
 
 (defun yafolding-get-level()
   (defun yafolding-get-level-iter()
-    (if (<= (yafolding-get-column) (car levels))
+    (if (<= (current-indentation) (car levels))
 	(progn
 	  (pop levels)
 	  (yafolding-get-level-iter))
       (progn
-	(push (yafolding-get-column) levels)
+	(push (current-indentation) levels)
 	(length levels))))
-  (if (= 0 (yafolding-get-column))
+  (if (= 0 (current-indentation))
       (progn
 	(setq levels '(0))
 	1)
@@ -131,7 +133,7 @@
 
   (defun yafolding-hide ()
     (save-excursion
-      (let* ((parent-level (yafolding-get-column))
+      (let* ((parent-level (current-indentation))
 	     (beg (line-end-position))
 	     (end beg)
 	     (first-line-data)
@@ -160,7 +162,7 @@
 
 		;; for emacs-lisp-mode
 		(if (and
-		     (equal major-mode 'emacs-lisp-mode)
+		     (equal major-mode 'emacs-lisp-Mode)
 		     (not last-line-data))
 		    (setq last-line-data ")"))
 
@@ -174,13 +176,9 @@
 
 
 
-  (defun previous-line-exists-p()
-    (save-excursion
-      (search-backward "\n" nil t nil)))
-
   (defun is-child()
-    (or (> (yafolding-get-column) parent-level)
-	(and (= (yafolding-get-column) parent-level)
+    (or (> (current-indentation) parent-level)
+	(and (= (current-indentation) parent-level)
 	     (yafolding-line-string-match-p "^[ {});\t]*$"))
 	(yafolding-line-string-match-p "^[ \t]*$")))
 
