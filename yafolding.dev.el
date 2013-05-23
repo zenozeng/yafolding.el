@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoes@qq.com>
 ;; keywords:
-;; Time-stamp: <2013-05-23 21:46:17 Zeno Zeng>
+;; Time-stamp: <2013-05-23 22:03:10 Zeno Zeng>
 
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -96,9 +96,9 @@
 	      (yafolding-next-line-exists-p))
 	(yafolding-my-next-line))
       (if (yafolding-line-string-match-p "^[ {\t]*$")
-	  (setq first-line-data "{"))
+          (setq first-line-data "{"))
       (if (yafolding-line-string-match-p "^[ \\(\t]*$")
-	  (setq first-line-data "("))
+          (setq first-line-data "("))
       ))
 
   (defun yafolding-get-last-line-data()
@@ -108,13 +108,13 @@
 	      (previous-line-exists-p))
 	(previous-line))
       (if (yafolding-line-string-match-p "^[ });\t]*$")
-	  (setq last-line-data "});"))
+          (setq last-line-data "});"))
       (if (yafolding-line-string-match-p "^[ };\t]*$")
-	  (setq last-line-data "};"))
+          (setq last-line-data "};"))
       (if (yafolding-line-string-match-p "^[ }\t]*$")
-	  (setq last-line-data "}"))
+          (setq last-line-data "}"))
       (if (yafolding-line-string-match-p "^[ )\t]*$")
-	  (setq last-line-data ")"))
+          (setq last-line-data ")"))
       ))
 
   (defun yafolding-show ()
@@ -162,9 +162,6 @@
 		  (overlay-put new-overlay 'before-string "..."))
 		(if last-line-data
 		    (overlay-put new-overlay 'after-string last-line-data))))))))
-
-
-
 
   (defun previous-line-exists-p()
     (save-excursion
