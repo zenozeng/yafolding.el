@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoes@qq.com>
 ;; keywords:
-;; Time-stamp: <2013-05-23 22:03:10 Zeno Zeng>
+;; Time-stamp: <2013-05-23 22:10:38 Zeno Zeng>
 
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -32,12 +32,6 @@
 		  (buffer-substring-no-properties
 		   (line-beginning-position)
 		   (line-end-position))))
-
-(defun yafolding-my-next-line()
-  "Go to next logical line and skip overlay at the same time"
-  (let ((line (line-number-at-pos (point))))
-    (while (= (line-number-at-pos (point)) line)
-      (next-line))))
 
 (defun yafolding-next-line-exists-p()
   "Test if next line exists"
@@ -94,7 +88,7 @@
       (while (and
 	      (yafolding-line-string-match-p "^[ \t]*$")
 	      (yafolding-next-line-exists-p))
-	(yafolding-my-next-line))
+	(forward-line))
       (if (yafolding-line-string-match-p "^[ {\t]*$")
           (setq first-line-data "{"))
       (if (yafolding-line-string-match-p "^[ \\(\t]*$")
@@ -128,12 +122,12 @@
 	     (end beg)
 	     (first-line-data)
 	     (last-line-data))
-	(yafolding-my-next-line)
+	(forward-line)
 	(yafolding-get-first-line-data)
 	(when (is-child)
 	  (while (and (is-child)
 		      (yafolding-next-line-exists-p))
-	    (yafolding-my-next-line))
+	    (forward-line))
 	  (unless (is-child)
 	    (previous-line))
 	  (setq end (line-end-position))
@@ -192,7 +186,7 @@
       (goto-char (point-min))
       (let ((levels '(0)))
 	(while (yafolding-next-line-exists-p)
-	  (yafolding-my-next-line)
+	  (forward-line)
 	  (unless (yafolding-line-string-match-p "^[ \t]$")
 	    (forward-char) ; 防止停留在overlay的最后导致重复toggle
 	    (when (= (yafolding-get-level) level)
@@ -237,7 +231,7 @@
 	(result 1))
     (goto-char (point-min))
     (while (and (yafolding-next-line-exists-p) (< (line-number-at-pos) line))
-      (yafolding-my-next-line)
+      (forward-line)
       (unless (yafolding-line-string-match-p "^[ \t]$")
 	(forward-char) ; 防止停留在overlay的最后导致重复toggle
 	(yafolding-get-level)
