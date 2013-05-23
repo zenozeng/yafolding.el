@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoes@qq.com>
 ;; keywords:
-;; Time-stamp: <2013-05-23 20:28:38 Zeno Zeng>
+;; Time-stamp: <2013-05-23 20:44:50 Zeno Zeng>
 
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -27,7 +27,7 @@
 ;;; Code:
 
 (defun yafolding-get-column()
-  "get the column of indentation"
+  "Get the column of indentation"
   (back-to-indentation)
   (current-column))
 
@@ -43,6 +43,37 @@
   (let ((line (line-number-at-pos (point))))
     (while (= (line-number-at-pos (point)) line)
       (next-line))))
+
+(defun yafolding-next-line-exists-p()
+  "Test if next line exists"
+  (< (line-end-position)
+     (line-number-at-pos (point-max))))
+
+(defun yafolding-next-line-exists-p()
+  "Test if next line exists"
+  (< (line-number-at-pos (point))
+     (line-number-at-pos (point-max))))
+
+
+(defun yafolding-get-overlay ()
+  "Return the yafolding's overlay in current line"
+  (save-excursion
+    (let ((overlays (overlays-in
+                     (line-beginning-position)
+                     (line-end-position)))
+          (overlay)
+          (the-overlay)
+          (point-delta 0))
+      (while (car overlays)
+        (setq overlay (pop overlays))
+        ;; get the outer overlay
+        (when (member "zeno-folding" (overlay-properties overlay))
+          (let ((overlay-point-delta (- (overlay-end overlay)
+                                        (overlay-start overlay))))
+            (when (> overlay-point-delta point-delta)
+              (setq point-delta overlay-point-delta)
+              (setq the-overlay overlay)))))
+      the-overlay)))
 
 
 ;; 分隔符 ------------------
@@ -61,31 +92,11 @@
 	(setq levels '(0))
 	1)
     (yafolding-get-level-iter)))
-(defun yafolding-next-line-exists-p()
-  (< (line-number-at-pos (point))
-     (line-number-at-pos (point-max))))
+
 
 (defun yafolding ()
   "floding based on indeneation"
   (interactive)
-  (defun yafolding-get-overlay ()
-    (save-excursion
-      (let ((overlays (overlays-in
-		       (progn (move-beginning-of-line nil) (point))
-		       (progn (move-end-of-line nil) (point))))
-	    (overlay)
-	    (the-overlay)
-	    (point-delta 0))
-	(while (car overlays)
-	  (setq overlay (pop overlays))
-	  ;; get the outer overlay
-	  (when (member "zeno-folding" (overlay-properties overlay))
-	    (let ((overlay-point-delta (- (overlay-end overlay)
-					  (overlay-start overlay))))
-	      (when (> overlay-point-delta point-delta)
-		(setq point-delta overlay-point-delta)
-		(setq the-overlay overlay)))))
-	the-overlay)))
 
   (defun yafolding-get-first-line-data()
     (save-excursion
@@ -186,21 +197,6 @@
 		    (buffer-substring-no-properties
 		     (line-beginning-position)
 		     (line-end-position))))
-  (defun yafolding-get-column()
-    (back-to-indentation)
-    (current-column))
-
-  (defun yafolding-my-next-line()
-    "next logical line and skip overlay at the same time"
-    (let ((line (line-number-at-pos (point))))
-      (while (= (line-number-at-pos (point)) line)
-	(next-line))))
-
-  (defun yafolding-next-line-exists-p()
-    (< (line-number-at-pos (point))
-       (line-number-at-pos (point-max))))
-
-  
   (yafolding-show-all)
   ;; level => column
   (ignore-errors
