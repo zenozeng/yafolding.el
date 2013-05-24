@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoes@qq.com>
 ;; keywords:
-;; Time-stamp: <2013-05-23 22:29:08 Zeno Zeng>
+;; Time-stamp: <2013-05-24 12:54:37 Zeno Zeng>
 ;; Version: 0.0.2
 
 
@@ -83,6 +83,7 @@
 	the-overlay)))
 
   (defun yafolding-get-first-line-data()
+    "Get the string of the first line of folding area"
     (save-excursion
       (while (and
 	      (yafolding-line-string-match-p "^[ \t]*$")
@@ -91,10 +92,10 @@
       (if (yafolding-line-string-match-p "^[ {\t]*$")
           (setq first-line-data "{"))
       (if (yafolding-line-string-match-p "^[ \\(\t]*$")
-          (setq first-line-data "("))
-      ))
+          (setq first-line-data "("))))
 
   (defun yafolding-get-last-line-data()
+    "Get the string of the last line of folding area"
     (save-excursion
       (while (and
 	      (yafolding-line-string-match-p "^[ \t]*$")
@@ -111,10 +112,12 @@
       ))
 
   (defun yafolding-show ()
+    "Show all hidden text in current line"
     (save-excursion
       (delete-overlay (yafolding-get-overlay))))
 
   (defun yafolding-hide ()
+    "Hide next parts based on current line"
     (save-excursion
       (let* ((parent-level (yafolding-get-column))
 	     (beg (line-end-position))
@@ -157,6 +160,7 @@
 		    (overlay-put new-overlay 'after-string last-line-data))))))))
 
   (defun is-child()
+    "Test if this line is child of previous line"
     (or (> (yafolding-get-column) parent-level)
 	(and (= (yafolding-get-column) parent-level)
 	     (yafolding-line-string-match-p "^[ {});\t]*$"))
@@ -168,6 +172,7 @@
 	(yafolding-hide))))
 
 (defun yafolding-hide-all(level)
+  "Hide all lines whose level is less than LEVEL"
   (interactive "nLevel:")
   (defun yafolding-line-string-match-p(regexp)
     (string-match-p regexp
@@ -188,6 +193,7 @@
 	      (yafolding))))))))
 
 (defun yafolding-show-all()
+  "Show all lines"
   (interactive)
   (let ((overlays (overlays-in (point-min) (point-max)))
 	(overlay))
@@ -195,7 +201,9 @@
       (setq overlay (pop overlays))
       (if (member "zeno-folding" (overlay-properties overlay))
 	  (delete-overlay overlay)))))
+
 (defun yafolding-toggle-all(&optional level)
+  "If hidden lines exist show it; else hide all lines whose level is less than LEVEL"
   (interactive)
   (unless level
     (setq level 1))
@@ -211,6 +219,7 @@
       (yafolding-hide-all level))))
 
 (defun yafolding-temp-toggle(hide-p)
+  "This is the function for auto show hidden parts in isearch"
   (let ((overlays (overlays-in (point-min) (point-max)))
 	(overlay))
     (while (car overlays)
@@ -219,6 +228,7 @@
 	  (overlay-put overlay 'invisible hide-p)))))
 
 (defun yafolding-get-current-line-level()
+  "Return the level of current line"
   (interactive)
   (let ((line (line-number-at-pos))
 	(levels '(0))
@@ -234,8 +244,9 @@
     result))
 
 (defun yafolding-toggle-all-by-current-level()
+  "If hidden lines exist, show all; else hide all lines whose level is less than current line"
   (interactive)
-  (message "%s" (yafolding-get-current-line-level))
+;;  (message "%s" (yafolding-get-current-line-level))
   (yafolding-toggle-all (yafolding-get-current-line-level)))
 
 (add-hook 'isearch-mode-hook (lambda() (yafolding-temp-toggle nil)))
