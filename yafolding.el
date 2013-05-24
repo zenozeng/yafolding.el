@@ -3,7 +3,10 @@
 ;; Copyright (C) 2013  Zeno Zeng
 
 ;; Author: Zeno Zeng <zenoes@qq.com>
-;; keywords: 
+;; keywords:
+;; Time-stamp: <2013-05-24 12:55:04 Zeno Zeng>
+;; Version: 0.0.2
+
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -23,43 +26,42 @@
 ;; Folding code blocks based on indentation
 
 ;;; Code:
-(defun yafolding-get-column()
-  (back-to-indentation)
-  (current-column))
-
-(defun yafolding-my-next-line()
-  "next logical line and skip overlay at the same time"
-  (let ((line (line-number-at-pos (point))))
-    (while (= (line-number-at-pos (point)) line)
-      (next-line))))
 
 (defun yafolding-line-string-match-p(regexp)
+  "Test if current line match the regexp"
   (string-match-p regexp
 		  (buffer-substring-no-properties
 		   (line-beginning-position)
 		   (line-end-position))))
 
+(defun yafolding-next-line-exists-p()
+  "Test if next line exists"
+  (< (line-number-at-pos (point))
+     (line-number-at-pos (point-max))))
+
+(defun yafolding-previous-line-exists-p()
+  "Test if previous line exists"
+  (> (line-number-at-pos (point))
+     (line-number-at-pos (point-min))))
 
 (defun yafolding-get-level()
+  "Get the indent level of current line"
   (defun yafolding-get-level-iter()
-    (if (<= (yafolding-get-column) (car levels))
+    (if (<= (current-indentation) (car levels))
 	(progn
 	  (pop levels)
 	  (yafolding-get-level-iter))
       (progn
-	(push (yafolding-get-column) levels)
+	(push (current-indentation) levels)
 	(length levels))))
-  (if (= 0 (yafolding-get-column))
+  (if (= 0 (current-indentation))
       (progn
 	(setq levels '(0))
 	1)
     (yafolding-get-level-iter)))
-(defun yafolding-next-line-exists-p()
-  (< (line-number-at-pos (point))
-     (line-number-at-pos (point-max))))
 
 (defun yafolding ()
-  "floding based on indeneation"
+  "Floding based on indeneation"
   (interactive)
   (defun yafolding-get-overlay ()
     (save-excursion
@@ -81,52 +83,55 @@
 	the-overlay)))
 
   (defun yafolding-get-first-line-data()
+    "Get the string of the first line of folding area"
     (save-excursion
       (while (and
 	      (yafolding-line-string-match-p "^[ \t]*$")
 	      (yafolding-next-line-exists-p))
-	(yafolding-my-next-line))
+	(forward-line))
       (if (yafolding-line-string-match-p "^[ {\t]*$")
-	  (setq first-line-data "{"))
+          (setq first-line-data "{"))
       (if (yafolding-line-string-match-p "^[ \\(\t]*$")
-	  (setq first-line-data "("))
-      ))
+          (setq first-line-data "("))))
 
   (defun yafolding-get-last-line-data()
+    "Get the string of the last line of folding area"
     (save-excursion
       (while (and
 	      (yafolding-line-string-match-p "^[ \t]*$")
-	      (previous-line-exists-p))
-	(previous-line))
+	      (yafolding-previous-line-exists-p))
+	(forward-line -1))
       (if (yafolding-line-string-match-p "^[ });\t]*$")
-	  (setq last-line-data "});"))
+          (setq last-line-data "});"))
       (if (yafolding-line-string-match-p "^[ };\t]*$")
-	  (setq last-line-data "};"))
+          (setq last-line-data "};"))
       (if (yafolding-line-string-match-p "^[ }\t]*$")
-	  (setq last-line-data "}"))
+          (setq last-line-data "}"))
       (if (yafolding-line-string-match-p "^[ )\t]*$")
-	  (setq last-line-data ")"))
+          (setq last-line-data ")"))
       ))
 
   (defun yafolding-show ()
+    "Show all hidden text in current line"
     (save-excursion
       (delete-overlay (yafolding-get-overlay))))
 
   (defun yafolding-hide ()
+    "Hide next parts based on current line"
     (save-excursion
       (let* ((parent-level (yafolding-get-column))
 	     (beg (line-end-position))
 	     (end beg)
 	     (first-line-data)
 	     (last-line-data))
-	(yafolding-my-next-line)
+	(forward-line)
 	(yafolding-get-first-line-data)
 	(when (is-child)
 	  (while (and (is-child)
 		      (yafolding-next-line-exists-p))
-	    (yafolding-my-next-line))
+	    (forward-line))
 	  (unless (is-child)
-	    (previous-line))
+	    (forward-line -1))
 	  (setq end (line-end-position))
 	  (yafolding-get-last-line-data)
 
@@ -154,14 +159,8 @@
 		(if last-line-data
 		    (overlay-put new-overlay 'after-string last-line-data))))))))
 
-
-
-
-  (defun previous-line-exists-p()
-    (save-excursion
-      (search-backward "\n" nil t nil)))
-
   (defun is-child()
+    "Test if this line is child of previous line"
     (or (> (yafolding-get-column) parent-level)
 	(and (= (yafolding-get-column) parent-level)
 	     (yafolding-line-string-match-p "^[ {});\t]*$"))
@@ -172,29 +171,14 @@
     (if (yafolding-line-string-match-p "[^ \t]+")
 	(yafolding-hide))))
 
-
 (defun yafolding-hide-all(level)
+  "Hide all lines whose level is less than LEVEL"
   (interactive "nLevel:")
   (defun yafolding-line-string-match-p(regexp)
     (string-match-p regexp
 		    (buffer-substring-no-properties
 		     (line-beginning-position)
 		     (line-end-position))))
-  (defun yafolding-get-column()
-    (back-to-indentation)
-    (current-column))
-
-  (defun yafolding-my-next-line()
-    "next logical line and skip overlay at the same time"
-    (let ((line (line-number-at-pos (point))))
-      (while (= (line-number-at-pos (point)) line)
-	(next-line))))
-
-  (defun yafolding-next-line-exists-p()
-    (< (line-number-at-pos (point))
-       (line-number-at-pos (point-max))))
-
-  
   (yafolding-show-all)
   ;; level => column
   (ignore-errors
@@ -202,13 +186,14 @@
       (goto-char (point-min))
       (let ((levels '(0)))
 	(while (yafolding-next-line-exists-p)
-	  (yafolding-my-next-line)
+	  (forward-line)
 	  (unless (yafolding-line-string-match-p "^[ \t]$")
 	    (forward-char) ; 防止停留在overlay的最后导致重复toggle
 	    (when (= (yafolding-get-level) level)
 	      (yafolding))))))))
 
 (defun yafolding-show-all()
+  "Show all lines"
   (interactive)
   (let ((overlays (overlays-in (point-min) (point-max)))
 	(overlay))
@@ -216,11 +201,12 @@
       (setq overlay (pop overlays))
       (if (member "zeno-folding" (overlay-properties overlay))
 	  (delete-overlay overlay)))))
+
 (defun yafolding-toggle-all(&optional level)
+  "If hidden lines exist show it; else hide all lines whose level is less than LEVEL"
   (interactive)
   (unless level
     (setq level 1))
-  (message "lev:%d" level)
   (let ((overlays (overlays-in (point-min) (point-max)))
 	(overlay)
 	(previous-hide-p nil))
@@ -233,6 +219,7 @@
       (yafolding-hide-all level))))
 
 (defun yafolding-temp-toggle(hide-p)
+  "This is the function for auto show hidden parts in isearch"
   (let ((overlays (overlays-in (point-min) (point-max)))
 	(overlay))
     (while (car overlays)
@@ -241,13 +228,14 @@
 	  (overlay-put overlay 'invisible hide-p)))))
 
 (defun yafolding-get-current-line-level()
+  "Return the level of current line"
   (interactive)
   (let ((line (line-number-at-pos))
 	(levels '(0))
 	(result 1))
     (goto-char (point-min))
     (while (and (yafolding-next-line-exists-p) (< (line-number-at-pos) line))
-      (yafolding-my-next-line)
+      (forward-line)
       (unless (yafolding-line-string-match-p "^[ \t]$")
 	(forward-char) ; 防止停留在overlay的最后导致重复toggle
 	(yafolding-get-level)
@@ -256,8 +244,9 @@
     result))
 
 (defun yafolding-toggle-all-by-current-level()
+  "If hidden lines exist, show all; else hide all lines whose level is less than current line"
   (interactive)
-  (message "%s" (yafolding-get-current-line-level))
+;;  (message "%s" (yafolding-get-current-line-level))
   (yafolding-toggle-all (yafolding-get-current-line-level)))
 
 (add-hook 'isearch-mode-hook (lambda() (yafolding-temp-toggle nil)))
