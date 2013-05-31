@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoes@qq.com>
 ;; keywords:
-;; Time-stamp: <2013-05-24 12:55:04 Zeno Zeng>
+;; Time-stamp: <2013-05-31 16:47:30 Zeno Zeng>
 ;; Version: 0.0.2
 
 
@@ -119,7 +119,7 @@
   (defun yafolding-hide ()
     "Hide next parts based on current line"
     (save-excursion
-      (let* ((parent-level (yafolding-get-column))
+      (let* ((parent-level (current-indentation))
 	     (beg (line-end-position))
 	     (end beg)
 	     (first-line-data)
@@ -161,8 +161,8 @@
 
   (defun is-child()
     "Test if this line is child of previous line"
-    (or (> (yafolding-get-column) parent-level)
-	(and (= (yafolding-get-column) parent-level)
+    (or (> (current-indentation) parent-level)
+	(and (= (current-indentation) parent-level)
 	     (yafolding-line-string-match-p "^[ {});\t]*$"))
 	(yafolding-line-string-match-p "^[ \t]*$")))
 
