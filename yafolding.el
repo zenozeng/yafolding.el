@@ -153,11 +153,21 @@
 		    (setq last-line-data ")"))
 
 		(if first-line-data
-		    (overlay-put new-overlay 'before-string
-				 (concat first-line-data "..."))
-		  (overlay-put new-overlay 'before-string "..."))
+          (overlay-put new-overlay 'before-string
+                       (show-with-fringe 
+                        (concat
+                         first-line-data " ... ")))
+          (overlay-put new-overlay 'before-string 
+                       (show-with-fringe " ... ")))
+
 		(if last-line-data
 		    (overlay-put new-overlay 'after-string last-line-data))))))))
+
+  (defun show-with-fringe (whole-line)
+    "Show triangle on the left fringe"
+    (concat 
+     (propertize " " 'display '(left-fringe right-triangle)) 
+     whole-line))
 
   (defun is-child()
     "Test if this line is child of previous line"
