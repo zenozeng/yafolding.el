@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords:
-;; Time-stamp: <2014-07-02 16:53:44 Zeno Zeng>
+;; Time-stamp: <2014-07-02 16:57:28 Zeno Zeng>
 ;; Version: 0.1.3
 
 
@@ -117,7 +117,8 @@
       (while (and (< (line-number-at-pos) (line-number-at-pos (point-max)))
                   (or (> (current-indentation) indentation)
                       (yafolding-should-ignore-current-line-p)))
-        (setq end (line-end-position))
+        (unless (yafolding-should-ignore-current-line-p)
+          (setq end (line-end-position)))
         (forward-line 1)))
     (list beg end)))
 
