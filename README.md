@@ -8,9 +8,21 @@ Folding code blocks based on indentation.
 
 ## Config Example
 
+### Hook into prog-mode-hook
+
 ```emacs-lisp
 (add-hook 'prog-mode-hook
           (lambda () (yafolding-mode)))
+```
+
+### Modify keybindings
+
+```
+(require 'yafolding)
+(define-key yafolding-mode-keymap (kbd "<C-S-return>") nil)
+(define-key yafolding-mode-keymap (kbd "<C-return>") nil)
+(define-key yafolding-mode-keymap (kbd "C-c <C-S-return>") 'yafolding-toggle-all)
+(define-key yafolding-mode-keymap (kbd "C-c <C-return>" 'yafolding-toggle-element)
 ```
 
 

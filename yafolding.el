@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords:
-;; Time-stamp: <2014-07-02 16:03:07 Zeno Zeng>
+;; Time-stamp: <2014-07-02 16:25:36 Zeno Zeng>
 ;; Version: 0.1.3
 
 
@@ -142,6 +142,7 @@
       (yafolding-show-element)
     (yafolding-hide-element)))
 
+;;;###autoload
 (defvar yafolding-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "<C-S-return>") #'yafolding-toggle-all)
