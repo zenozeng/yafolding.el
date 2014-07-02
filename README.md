@@ -19,10 +19,10 @@ Folding code blocks based on indentation.
 
 ```
 (require 'yafolding)
-(define-key yafolding-mode-keymap (kbd "<C-S-return>") nil)
-(define-key yafolding-mode-keymap (kbd "<C-return>") nil)
-(define-key yafolding-mode-keymap (kbd "C-c <C-S-return>") 'yafolding-toggle-all)
-(define-key yafolding-mode-keymap (kbd "C-c <C-return>" 'yafolding-toggle-element)
+(define-key yafolding-mode-map (kbd "<C-S-return>") nil)
+(define-key yafolding-mode-map (kbd "<C-return>") nil)
+(define-key yafolding-mode-map (kbd "C-c <C-S-return>") 'yafolding-toggle-all)
+(define-key yafolding-mode-map (kbd "C-c <C-return>" 'yafolding-toggle-element)
 ```
 
 
