@@ -9,7 +9,7 @@ Folding code blocks based on indentation.
 ## Config Example
 
 ```emacs-lisp
-(add-hook 'c++-mode-hook
+(add-hook 'prog-mode-hook
           (lambda () (yafolding-mode)))
 ```
 

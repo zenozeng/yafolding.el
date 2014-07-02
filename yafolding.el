@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords:
-;; Time-stamp: <2014-07-02 15:24:15 Zeno Zeng>
+;; Time-stamp: <2014-07-02 15:43:21 Zeno Zeng>
 ;; Version: 0.1.3
 
 
@@ -44,8 +44,9 @@
       (while (and (> (current-indentation) 0)
                   (> (line-number-at-pos) 1))
         (forward-line -1)
-        (if (< (current-indentation) last-indentation)
-            (setq last-indentation (current-indentation)))))
+        (when (< (current-indentation) last-indentation)
+            (setq last-indentation (current-indentation))
+            (setq indent-level (+ 1 indent-level)))))
     indent-level))
 
 (defun yafolding-show-region (beg end)
@@ -60,8 +61,13 @@
 (defun yafolding-hide-all (&optional indent-level)
   "Hide all elements based on indent-level"
   (interactive)
-  ;; TODO
-  )
+  (setq indent-level (yafolding-get-indent-level))
+  (save-excursion
+    (while (< (line-number-at-pos)
+            (line-number-at-pos (point-max)))
+    (if (= (yafolding-get-indent-level) indent-level)
+        (yafolding-hide-element))
+    (forward-line 1))))
 
 (defun yafolding-toggle-all (&optional indent-level)
   "Toggle folding of the entire file"
@@ -118,9 +124,6 @@
                               (+ 1 (line-end-position)))
       (yafolding-show-element)
     (yafolding-hide-element)))
-
-;;; yafolding.el ends here
-
 
 (defvar yafolding-mode-map
   (let ((map (make-sparse-keymap)))
