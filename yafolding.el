@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords:
-;; Time-stamp: <2014-07-02 15:43:21 Zeno Zeng>
+;; Time-stamp: <2014-07-02 15:46:48 Zeno Zeng>
 ;; Version: 0.1.3
 
 
@@ -63,6 +63,7 @@
   (interactive)
   (setq indent-level (yafolding-get-indent-level))
   (save-excursion
+    (goto-char (point-min))
     (while (< (line-number-at-pos)
             (line-number-at-pos (point-max)))
     (if (= (yafolding-get-indent-level) indent-level)
