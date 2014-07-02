@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords:
-;; Time-stamp: <2014-07-02 15:46:48 Zeno Zeng>
+;; Time-stamp: <2014-07-02 16:03:07 Zeno Zeng>
 ;; Version: 0.1.3
 
 
@@ -35,19 +35,31 @@
                        overlay))
                 (overlays-in beg end))))
 
+(defun yafolding-should-ignore-current-line-p ()
+  "Return if should ignore current line"
+  (string-match-p "^[ \t]*$"
+                  (buffer-substring-no-properties
+                   (line-beginning-position)
+                   (line-end-position))))
+
 (defun yafolding-get-indent-level ()
   "Get the indent level of current line"
   (interactive)
-  (let ((indent-level 0)
-        (last-indentation (current-indentation)))
-    (save-excursion
-      (while (and (> (current-indentation) 0)
-                  (> (line-number-at-pos) 1))
-        (forward-line -1)
-        (when (< (current-indentation) last-indentation)
-            (setq last-indentation (current-indentation))
-            (setq indent-level (+ 1 indent-level)))))
-    indent-level))
+  (if (and (yafolding-should-ignore-current-line-p)
+           (< (line-number-at-pos) (line-number-at-pos (point-max))))
+      (save-excursion
+        (forward-line 1)
+        (yafolding-get-indent-level))
+      (let ((indent-level 0)
+            (last-indentation (current-indentation)))
+        (save-excursion
+          (while (and (> (current-indentation) 0)
+                      (> (line-number-at-pos) 1))
+            (forward-line -1)
+            (when (< (current-indentation) last-indentation)
+              (setq last-indentation (current-indentation))
+              (setq indent-level (+ 1 indent-level)))))
+        indent-level)))
 
 (defun yafolding-show-region (beg end)
   "Delete all yafolding overlays between beg and end"
@@ -61,7 +73,8 @@
 (defun yafolding-hide-all (&optional indent-level)
   "Hide all elements based on indent-level"
   (interactive)
-  (setq indent-level (yafolding-get-indent-level))
+  (unless indent-level
+    (setq indent-level (yafolding-get-indent-level)))
   (save-excursion
     (goto-char (point-min))
     (while (< (line-number-at-pos)
@@ -73,6 +86,8 @@
 (defun yafolding-toggle-all (&optional indent-level)
   "Toggle folding of the entire file"
   (interactive)
+  (unless indent-level
+    (setq indent-level (yafolding-get-indent-level)))
   (if (yafolding-get-overlays (point-min) (point-max))
       (yafolding-show-all)
     (yafolding-hide-all indent-level)))
@@ -99,8 +114,9 @@
         (indentation (current-indentation)))
     (save-excursion
       (forward-line)
-      (while (and (> (current-indentation) indentation)
-                  (< (line-number-at-pos) (line-number-at-pos (point-max))))
+      (while (and (< (line-number-at-pos) (line-number-at-pos (point-max)))
+                  (or (> (current-indentation) indentation)
+                      (yafolding-should-ignore-current-line-p)))
         (setq end (line-end-position))
         (forward-line 1)))
     (list beg end)))
