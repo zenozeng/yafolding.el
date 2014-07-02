@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords:
-;; Time-stamp: <2014-07-02 16:25:36 Zeno Zeng>
+;; Time-stamp: <2014-07-02 16:53:44 Zeno Zeng>
 ;; Version: 0.1.3
 
 
@@ -141,6 +141,16 @@
                               (+ 1 (line-end-position)))
       (yafolding-show-element)
     (yafolding-hide-element)))
+
+(add-hook 'isearch-mode-hook
+          (lambda() (mapcar (lambda (overlay)
+                          (overlay-put overlay 'invisible nil))
+                        (yafolding-get-overlays (point-min) (point-max)))))
+
+(add-hook 'isearch-mode-end-hook
+          (lambda() (mapcar (lambda (overlay)
+                          (overlay-put overlay 'invisible t))
+                        (yafolding-get-overlays (point-min) (point-max)))))
 
 ;;;###autoload
 (defvar yafolding-mode-map
