@@ -27,6 +27,30 @@
 
 ;;; Code:
 
+(defgroup yafolding nil
+  "Fold code blocks based on indentation level"
+  :prefix "yafolding-"
+  :link '(url-link :tag "yafolding on github" "https://github.com/zenozeng/yafolding.el")
+  :group 'applications)
+
+(defface yafolding-ellipsis-face
+  '()
+  "Face for folded blocks"
+  :group 'yafolding)
+
+(defcustom yafolding-ellipsis-content "..."
+  "text to show in place of a folded block"
+  :tag "Ellipsis"
+  :type 'string
+  :group 'yafolding
+  )
+
+(defcustom yafolding-show-fringe-marks t
+  "Show fold markers in the fringe?"
+  :tag "Show fringe marks?"
+  :type 'boolean
+  :group 'yafolding)
+
 (defun yafolding-get-overlays (beg end)
   "Get all overlays between beg and end"
   (delq nil
@@ -92,12 +116,20 @@
       (yafolding-show-all)
     (yafolding-hide-all indent-level)))
 
+(defun yafolding-ellipsis ()
+  (concat " "
+          (propertize yafolding-ellipsis-content 'face 'yafolding-ellipsis-face)
+          " "))
+
 (defun yafolding-hide-region (beg end)
   "Hide region"
   (when (> end beg)
       (yafolding-show-region beg end)
-      (let ((before-string (concat (propertize " " 'display '(left-fringe right-triangle))
-                                   " ... "))
+      (let ((before-string
+             (concat
+              (when yafolding-show-fringe-marks
+                (propertize " " 'display '(left-fringe right-triangle)))
+              (yafolding-ellipsis)))
             (new-overlay (make-overlay beg end)))
         (overlay-put new-overlay 'invisible t)
         (overlay-put new-overlay 'intangible t)
