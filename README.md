@@ -1,6 +1,6 @@
 # yafolding - Yet another folding extension for the Emacs editor
 
-Folding code blocks based on indentation.  
+Folding code blocks based on indentation.
 
 ## ScreenShot
 ![PrtSc](https://raw.github.com/zenozeng/yafolding.el/master/psc.png)
