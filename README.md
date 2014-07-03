@@ -1,4 +1,4 @@
-# yafolding - Yet another folding extension for the Emacs editor
+# yafolding - Yet another folding extension for Emacs
 
 Folding code blocks based on indentation.
 
