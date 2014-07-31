@@ -22,7 +22,7 @@ Folding code blocks based on indentation.
 (define-key yafolding-mode-map (kbd "<C-S-return>") nil)
 (define-key yafolding-mode-map (kbd "<C-return>") nil)
 (define-key yafolding-mode-map (kbd "C-c <C-S-return>") 'yafolding-toggle-all)
-(define-key yafolding-mode-map (kbd "C-c <C-return>" 'yafolding-toggle-element)
+(define-key yafolding-mode-map (kbd "C-c <C-return>") 'yafolding-toggle-element)
 ```
 
 
