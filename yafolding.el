@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2014-07-03 15:12:09 Zeno Zeng>
+;; Time-stamp: <2014-10-08 05:43:09 Zeno Zeng>
 ;; Version: 0.1.4
 
 
@@ -133,6 +133,7 @@
             (new-overlay (make-overlay beg end)))
         (overlay-put new-overlay 'invisible t)
         (overlay-put new-overlay 'intangible t)
+        (overlay-put new-overlay 'evaporate t)
         (overlay-put new-overlay 'modification-hooks
                      (list (lambda (overlay &optional a b c d)
                              (delete-overlay overlay))))
