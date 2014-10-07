@@ -5,7 +5,6 @@ Folding code blocks based on indentation.
 ## ScreenShot
 ![PrtSc](https://raw.github.com/zenozeng/yafolding.el/master/psc.png)
 
-
 ## Config Example
 
 ### Hook into prog-mode-hook
@@ -25,6 +24,19 @@ Folding code blocks based on indentation.
 (define-key yafolding-mode-map (kbd "C-c <C-return>") 'yafolding-toggle-element)
 ```
 
+## Known Issue
+
+### data loss on delete-trailing-whitespace
+
+use this instated:
+
+```emacs-lisp
+(lambda ()
+    (yafolding-show-all)
+    (delete-trailing-whitespace))
+```
+
+see also: https://github.com/zenozeng/yafolding.el/issues/13
 
 ## Licensing
 
