@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2014-10-08 05:43:09 Zeno Zeng>
+;; Time-stamp: <2014-10-11 16:05:23 Zeno Zeng>
 ;; Version: 0.1.4
 
 
@@ -186,10 +186,24 @@
                           (overlay-put overlay 'invisible t))
                         (yafolding-get-overlays (point-min) (point-max)))))
 
+(defun yafolding-go-parent-element ()
+  "Go back to parent element"
+  (interactive)
+  (re-search-backward (concat "^.\\{,"
+                              (number-to-string (- (current-indentation) 1))
+                              "\\}[^ \t]+")))
+
+(defun yafolding-hide-parent-element ()
+  (interactive)
+  (ignore-errors
+    (yafolding-go-parent-element)
+    (yafolding-hide-element)))
+
 ;;;###autoload
 (defvar yafolding-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "<C-S-return>") #'yafolding-toggle-all)
+    (define-key map (kbd "<C-S-return>") #'yafolding-hide-parent-element)
+    (define-key map (kbd "<C-M-return>") #'yafolding-toggle-all)
     (define-key map (kbd "<C-return>") #'yafolding-toggle-element)
     map))
 
