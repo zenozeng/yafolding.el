@@ -199,6 +199,28 @@
     (yafolding-go-parent-element)
     (yafolding-hide-element)))
 
+;; For this feature, you need to install discover.el
+;; https://www.github.com/mickeynp/discover.el
+(discover-add-context-menu
+ :context-menu '(yafolding
+              (description "folding based on indentation")
+              (actions
+               ("yafolding"
+                ("h" "hide element" yafolding-hide-element)
+                ("s" "show element" yafolding-show-element)
+                ("t" "toggle element" yafolding-toggle-element)
+                ("H" "hide all" yafolding-hide-all)
+                ("S" "show all" yafolding-show-all)
+                ("T" "toggle all" yafolding-toggle-all)
+                ("p" "go parent element" yafolding-go-parent-element)
+                ("P" "hide parent element" yafolding-hide-parent-element)
+                ("m" "mode" yafolding-mode)
+                )
+))
+)
+
+(defalias 'yafolding-discover 'makey-key-mode-popup-yafolding)
+
 ;;;###autoload
 (defvar yafolding-mode-map
   (let ((map (make-sparse-keymap)))

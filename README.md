@@ -18,6 +18,16 @@ Folding code blocks based on indentation.
     map))
 ```
 
+### Discover commands with a context menu
+
+Call `M-x yafolding-discover` to have a magit-like context menu that
+displays the available commands. This feature relies on
+[discover.el](https://www.github.com/mickeynp/discover.el).
+
+To give it a keybinding:
+
+    (global-set-key (kbd "s-d y") 'yafolding-discover)
+
 ### Hook into prog-mode-hook
 
 ```emacs-lisp
