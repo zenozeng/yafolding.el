@@ -5,7 +5,7 @@
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
 ;; Time-stamp: <2016-07-23 16:39:30 Zeno Zeng>
-;; Version: 0.3.0
+;; Version: 0.3.1
 
 
 ;; This program is free software; you can redistribute it and/or modify
