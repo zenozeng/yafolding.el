@@ -4,8 +4,8 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2016-07-23 16:31:29 Zeno Zeng>
-;; Version: 0.2.0
+;; Time-stamp: <2016-07-23 16:32:53 Zeno Zeng>
+;; Version: 0.3.0
 
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -158,7 +158,7 @@
                       (yafolding-should-ignore-current-line-p)))
         (unless (yafolding-should-ignore-current-line-p)
           (setq end (line-end-position)))
-        (next-line)))
+        (next-line))) ; using next-line instead of forward-line, for issue#23
     (list beg end)))
 
 (defun yafolding-hide-element ()
