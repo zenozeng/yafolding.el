@@ -1,6 +1,6 @@
-* parent comment
-   * child 1 comment
-        code
+* indent level 0
+   * indent level 1
+        indent level 2
         code
         code
    * child 2 comment

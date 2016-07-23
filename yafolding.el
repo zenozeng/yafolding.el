@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2016-07-23 16:32:53 Zeno Zeng>
+;; Time-stamp: <2016-07-23 16:39:30 Zeno Zeng>
 ;; Version: 0.3.0
 
 
@@ -142,8 +142,9 @@
 
 (defun yafolding-debug ()
   (interactive)
-  (message "indentation: %d, ingore current line: %s"
+  (message "indentation: %d, indent level: %d, ingore current line: %s"
            (current-indentation)
+           (yafolding-get-indent-level)
            (yafolding-should-ignore-current-line-p)))
 
 (defun yafolding-get-element-region ()
