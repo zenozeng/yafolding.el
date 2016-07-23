@@ -1,10 +1,10 @@
 ;;; yafolding.el --- Yet another folding extension for Emacs
 
-;; Copyright (C) 2013-2014  Zeno Zeng
+;; Copyright (C) 2013-2016 Zeno Zeng
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2014-10-11 16:09:50 Zeno Zeng>
+;; Time-stamp: <2016-07-23 16:31:29 Zeno Zeng>
 ;; Version: 0.2.0
 
 
@@ -140,19 +140,25 @@
         (overlay-put new-overlay 'before-string before-string)
         (overlay-put new-overlay 'category "yafolding"))))
 
+(defun yafolding-debug ()
+  (interactive)
+  (message "indentation: %d, ingore current line: %s"
+           (current-indentation)
+           (yafolding-should-ignore-current-line-p)))
+
 (defun yafolding-get-element-region ()
   "Get '(beg end) of current element"
   (let ((beg (line-end-position))
         (end (line-end-position))
         (indentation (current-indentation)))
     (save-excursion
-      (forward-line)
+      (next-line)
       (while (and (< (line-number-at-pos) (line-number-at-pos (point-max)))
                   (or (> (current-indentation) indentation)
                       (yafolding-should-ignore-current-line-p)))
         (unless (yafolding-should-ignore-current-line-p)
           (setq end (line-end-position)))
-        (forward-line 1)))
+        (next-line)))
     (list beg end)))
 
 (defun yafolding-hide-element ()
