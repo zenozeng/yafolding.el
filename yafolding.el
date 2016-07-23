@@ -27,6 +27,8 @@
 
 ;;; Code:
 
+(declare-function discover-add-context-menu "discover")
+
 (defgroup yafolding nil
   "Fold code blocks based on indentation level"
   :prefix "yafolding-"
