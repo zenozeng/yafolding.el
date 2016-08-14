@@ -41,7 +41,7 @@
   :group 'yafolding)
 
 (defcustom yafolding-ellipsis-content "..."
-  "text to show in place of a folded block"
+  "Text to show in place of a folded block."
   :tag "Ellipsis"
   :type 'string
   :group 'yafolding
@@ -54,7 +54,7 @@
   :group 'yafolding)
 
 (defun yafolding-get-overlays (beg end)
-  "Get all overlays between beg and end"
+  "Get all overlays between BEG and END."
   (delq nil
         (mapcar (lambda (overlay)
                   (and (member "yafolding" (overlay-properties overlay))
@@ -62,14 +62,14 @@
                 (overlays-in beg end))))
 
 (defun yafolding-should-ignore-current-line-p ()
-  "Return if should ignore current line"
+  "Return if should ignore current line."
   (string-match-p "^[ \t]*$"
                   (buffer-substring-no-properties
                    (line-beginning-position)
                    (line-end-position))))
 
 (defun yafolding-get-indent-level ()
-  "Get the indent level of current line"
+  "Get the indent level of current line."
   (interactive)
   (if (and (yafolding-should-ignore-current-line-p)
            (< (line-number-at-pos) (line-number-at-pos (point-max))))
@@ -88,16 +88,16 @@
         indent-level)))
 
 (defun yafolding-show-region (beg end)
-  "Delete all yafolding overlays between beg and end"
+  "Delete all yafolding overlays between BEG and END."
   (mapcar 'delete-overlay (yafolding-get-overlays beg end)))
 
 (defun yafolding-show-all ()
-  "Delete all yafolding overlays"
+  "Delete all yafolding overlays."
   (interactive)
   (yafolding-show-region (point-min) (point-max)))
 
 (defun yafolding-hide-all (&optional indent-level)
-  "Hide all elements based on indent-level"
+  "Hide all elements based on INDENT-LEVEL."
   (interactive)
   (unless indent-level
     (setq indent-level (yafolding-get-indent-level)))
@@ -110,7 +110,9 @@
     (forward-line 1))))
 
 (defun yafolding-toggle-all (&optional indent-level)
-  "Toggle folding of the entire file"
+  "Toggle folding of the entire file.
+
+If given, toggle all entries that start at INDENT-LEVEL."
   (interactive)
   (unless indent-level
     (setq indent-level (yafolding-get-indent-level)))
@@ -119,12 +121,13 @@
     (yafolding-hide-all indent-level)))
 
 (defun yafolding-ellipsis ()
+  "Return propertized ellipsis content."
   (concat " "
           (propertize yafolding-ellipsis-content 'face 'yafolding-ellipsis-face)
           " "))
 
 (defun yafolding-hide-region (beg end)
-  "Hide region"
+  "Hide region between BEG and END."
   (when (> end beg)
       (yafolding-show-region beg end)
       (let ((before-string
@@ -143,6 +146,7 @@
         (overlay-put new-overlay 'category "yafolding"))))
 
 (defun yafolding-debug ()
+  "Show yafolding information of the current position."
   (interactive)
   (message "indentation: %d, indent level: %d, ingore current line: %s"
            (current-indentation)
@@ -150,7 +154,7 @@
            (yafolding-should-ignore-current-line-p)))
 
 (defun yafolding-get-element-region ()
-  "Get '(beg end) of current element"
+  "Get '(beg end) of current element."
   (let ((beg (line-end-position))
         (end (line-end-position))
         (indentation (current-indentation)))
@@ -165,20 +169,20 @@
     (list beg end)))
 
 (defun yafolding-hide-element ()
-  "Hide current element"
+  "Hide current element."
   (interactive)
   (let ((region (yafolding-get-element-region)))
     (yafolding-hide-region (car region)
                            (cadr region))))
 
 (defun yafolding-show-element ()
-  "Show current element"
+  "Show current element."
   (interactive)
   (yafolding-show-region (line-beginning-position)
                          (+ 1 (line-end-position))))
 
 (defun yafolding-toggle-element ()
-  "Toggle current element"
+  "Toggle current element."
   (interactive)
   (if (yafolding-get-overlays (line-beginning-position)
                               (+ 1 (line-end-position)))
@@ -196,13 +200,14 @@
                         (yafolding-get-overlays (point-min) (point-max)))))
 
 (defun yafolding-go-parent-element ()
-  "Go back to parent element"
+  "Go back to parent element."
   (interactive)
   (re-search-backward (concat "^.\\{,"
                               (number-to-string (- (current-indentation) 1))
                               "\\}[^ \t]+")))
 
 (defun yafolding-hide-parent-element ()
+  "Hide the parent element."
   (interactive)
   (ignore-errors
     (yafolding-go-parent-element)
