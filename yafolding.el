@@ -114,10 +114,10 @@
 
 If given, toggle all entries that start at INDENT-LEVEL."
   (interactive)
-  (unless indent-level
-    (setq indent-level (yafolding-get-indent-level)))
   (if (yafolding-get-overlays (point-min) (point-max))
       (yafolding-show-all)
+    (unless indent-level
+      (setq indent-level (yafolding-get-indent-level)))
     (yafolding-hide-all indent-level)))
 
 (defun yafolding-ellipsis ()
