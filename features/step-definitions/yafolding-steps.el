@@ -16,11 +16,8 @@
          (erase-buffer)
          (insert-file-contents filename)))
 
-(And "^I am on line 2$"
-     (lambda () (goto-line 2)))
-
-(And "^I go to line 1$"
-     (lambda () (goto-line 1)))
+(And "^I \\(?:am on\\|go to\\) line \\([0-9]+\\)$"
+     (lambda (line) (goto-line (string-to-number line))))
 
 (And "^I call yafolding-hide-element$"
      (lambda () (yafolding-hide-element)))
