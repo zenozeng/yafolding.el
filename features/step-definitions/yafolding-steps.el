@@ -22,10 +22,11 @@
 (And "^I call yafolding-hide-element$"
      (lambda () (yafolding-hide-element)))
 
-(Then "^I should see only one line$"
-      (lambda ()
+(Then "^I should see \\(?:only \\)?\\([0-9]+\\) lines?$"
+      (lambda (num-lines)
         (save-excursion
-          (next-line)
+          (beginning-of-buffer)
+          (next-line (string-to-number num-lines))
           (should (= (line-number-at-pos (point))
                      (line-number-at-pos (point-max)))))))
 

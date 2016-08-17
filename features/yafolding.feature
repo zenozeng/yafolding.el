@@ -14,4 +14,4 @@ Feature: Fold all lines
     When I call yafolding-hide-all
     And I go to line 1
     And I call yafolding-hide-element
-    Then I should see only one line
+    Then I should see only 1 line
