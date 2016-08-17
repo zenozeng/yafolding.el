@@ -105,7 +105,8 @@
     (goto-char (point-min))
     (while (< (line-number-at-pos)
             (line-number-at-pos (point-max)))
-    (if (= (yafolding-get-indent-level) indent-level)
+      (if (and (= (yafolding-get-indent-level) indent-level)
+             (not (yafolding-should-ignore-current-line-p)))
         (yafolding-hide-element))
     (forward-line 1))))
 
