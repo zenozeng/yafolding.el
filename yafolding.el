@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2016-07-23 16:39:30 Zeno Zeng>
+;; Time-stamp: <2017-03-05 10:53:36 Zeno Zeng>
 ;; Version: 0.3.1
 
 
@@ -155,10 +155,14 @@ If given, toggle all entries that start at INDENT-LEVEL."
 (defun yafolding-debug ()
   "Show yafolding information of the current position."
   (interactive)
-  (message "indentation: %d, indent level: %d, ingore current line: %s"
+  (message "indentation: %d, indent level: %d, ingore current line: %s, element-region: %d - %d, (L%d - L%d)"
            (yafolding--current-indentation)
            (yafolding-get-indent-level)
-           (yafolding-should-ignore-current-line-p)))
+           (yafolding-should-ignore-current-line-p)
+           (car (yafolding-get-element-region))
+           (car (cdr (yafolding-get-element-region)))
+           (line-number-at-pos (car (yafolding-get-element-region)))
+           (line-number-at-pos (car (cdr (yafolding-get-element-region))))))
 
 (defun yafolding-get-element-region ()
   "Get '(beg end) of current element."
