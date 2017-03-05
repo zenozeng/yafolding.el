@@ -1,5 +1,7 @@
 # yafolding - Yet another folding extension for Emacs
 
+[![CircleCI](https://circleci.com/gh/zenozeng/yafolding.el.svg?style=svg)](https://circleci.com/gh/zenozeng/yafolding.el)
+
 Folding code blocks based on indentation.
 
 ## ScreenShot
