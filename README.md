@@ -82,8 +82,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## Testing
 
-For testing, use [ecukes][https://github.com/ecukes/ecukes], installed
+For testing, use [ecukes](https://github.com/ecukes/ecukes), installed
 by [Cask](https://github.com/cask/cask).  The tests are in the
 [features](./features/) subdirectory, test data is in the
-[data](./test/data) dir.  Running tests can be done by issueing `cask
-exec ecukes --[no-]win`.
+[data](./test/data) dir.
+
+### Run tests
+
+```bash
+cask install
+cask exec ecukes --no-win
+```
