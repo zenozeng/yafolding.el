@@ -51,7 +51,7 @@ To give it a keybinding:
 
 ### data loss on delete-trailing-whitespace
 
-use this instated:
+use this instead:
 
 ```emacs-lisp
 (lambda ()
