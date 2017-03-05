@@ -6,10 +6,10 @@ jobs:
     working_directory: /home/circleci/yafolding.el
     steps:
       - run:
-          name: git, python
+          name: git, python, curl
           command: |
             apt-get update
-            apt-get --yes install python git
+            apt-get --yes install python git curl
 
       - run:
           name: emacs25-nox
