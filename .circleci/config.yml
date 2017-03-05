@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: debian:sid
+    working_directory: /home/circleci/yafolding.el
+    steps:
+      - checkout
+
+      - run:
+          name: emacs25-nox
+          command: |
+            apt-get update
+            apt-get --yes install emacs25-nox
+
+      - run:
+          name: Cask
+          command: |
+            curl -fsSL https://raw.githubusercontent.com/cask/cask/master/go | python
+
+      - run:
+          name: Test
+          command: |
+            cask install
+            cask exec ecukes --no-win
