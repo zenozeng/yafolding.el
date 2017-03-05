@@ -24,10 +24,11 @@ jobs:
 
       - checkout
 
+      # See also: https://github.com/docker/docker/issues/8631
       - run:
           name: Test
           command: |
             PATH="/root/.cask/bin:$PATH"
-            TERM=xterm
+            export TERM=xterm
             cask install
             cask exec ecukes --no-win
