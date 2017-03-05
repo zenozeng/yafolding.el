@@ -28,5 +28,6 @@ jobs:
           name: Test
           command: |
             PATH="/root/.cask/bin:$PATH"
+            TERM=xterm
             cask install
             cask exec ecukes --no-win
