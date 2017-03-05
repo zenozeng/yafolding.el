@@ -27,5 +27,6 @@ jobs:
       - run:
           name: Test
           command: |
+            PATH="/root/.cask/bin:$PATH"
             cask install
             cask exec ecukes --no-win
