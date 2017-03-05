@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2017-03-05 10:53:36 Zeno Zeng>
+;; Time-stamp: <2017-03-05 11:09:08 Zeno Zeng>
 ;; Version: 0.3.1
 
 
@@ -61,12 +61,6 @@
                        overlay))
                 (overlays-in beg end))))
 
-(defun yafolding--current-indentation ()
-  "Determine indentation in (possibly invisible) current line."
-  (save-excursion
-    (back-to-indentation)
-    (current-column)))
-
 (defun yafolding-should-ignore-current-line-p ()
   "Return if should ignore current line."
   (string-match-p "^[ \t]*$"
@@ -83,13 +77,13 @@
         (forward-line 1)
         (yafolding-get-indent-level))
       (let ((indent-level 0)
-            (last-indentation (yafolding--current-indentation)))
+            (last-indentation (current-indentation)))
         (save-excursion
-          (while (and (> (yafolding--current-indentation) 0)
+          (while (and (> (current-indentation) 0)
                       (> (line-number-at-pos) 1))
             (forward-line -1)
-            (when (< (yafolding--current-indentation) last-indentation)
-              (setq last-indentation (yafolding--current-indentation))
+            (when (< (current-indentation) last-indentation)
+              (setq last-indentation (current-indentation))
               (setq indent-level (+ 1 indent-level)))))
         indent-level)))
 
@@ -121,10 +115,10 @@
 
 If given, toggle all entries that start at INDENT-LEVEL."
   (interactive)
+  (unless indent-level
+    (setq indent-level (yafolding-get-indent-level)))
   (if (yafolding-get-overlays (point-min) (point-max))
       (yafolding-show-all)
-    (unless indent-level
-      (setq indent-level (yafolding-get-indent-level)))
     (yafolding-hide-all indent-level)))
 
 (defun yafolding-ellipsis ()
@@ -168,13 +162,15 @@ If given, toggle all entries that start at INDENT-LEVEL."
   "Get '(beg end) of current element."
   (let ((beg (line-end-position))
         (end (line-end-position))
-        (indentation (yafolding--current-indentation)))
+        (indentation (current-indentation)))
     (save-excursion
-      (while (and (= (forward-line) 0)
-                (or (> (yafolding--current-indentation) indentation)
+      (next-line)
+      (while (and (< (line-number-at-pos) (line-number-at-pos (point-max)))
+                  (or (> (current-indentation) indentation)
                       (yafolding-should-ignore-current-line-p)))
         (unless (yafolding-should-ignore-current-line-p)
-          (setq end (line-end-position)))))
+          (setq end (line-end-position)))
+        (next-line))) ; using next-line instead of forward-line, for issue#23
     (list beg end)))
 
 (defun yafolding-hide-element ()
@@ -212,7 +208,7 @@ If given, toggle all entries that start at INDENT-LEVEL."
   "Go back to parent element."
   (interactive)
   (re-search-backward (concat "^.\\{,"
-                              (number-to-string (- (yafolding--current-indentation) 1))
+                              (number-to-string (- (current-indentation) 1))
                               "\\}[^ \t]+")))
 
 (defun yafolding-hide-parent-element ()
