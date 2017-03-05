@@ -1,11 +1,11 @@
 ;;; yafolding.el --- Yet another folding extension for Emacs
 
-;; Copyright (C) 2013-2016 Zeno Zeng
+;; Copyright (C) 2013-2017 Zeno Zeng
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2017-03-05 11:09:08 Zeno Zeng>
-;; Version: 0.3.1
+;; Time-stamp: <2017-03-05 11:16:23 Zeno Zeng>
+;; Version: 0.4.0
 
 
 ;; This program is free software; you can redistribute it and/or modify
