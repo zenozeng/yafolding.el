@@ -15,7 +15,7 @@ Folding code blocks based on indentation.
 (defvar yafolding-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "<C-S-return>") #'yafolding-hide-parent-element)
-    (define-key map (kbd "<C-M-return>") #'yafolding-toggle-all)
+    (define-key map (kbd "<C-M-return>") #'yafolding-toggle-all) ;; beware, that closes the session on some linux.
     (define-key map (kbd "<C-return>") #'yafolding-toggle-element)
     map))
 ```
@@ -24,7 +24,8 @@ Folding code blocks based on indentation.
 
 Call `M-x yafolding-discover` to have a magit-like context menu that
 displays the available commands. This feature relies on
-[discover.el](https://www.github.com/mickeynp/discover.el).
+[discover.el](https://www.github.com/mickeynp/discover.el) which you
+must install yourself.
 
 To give it a keybinding:
 
