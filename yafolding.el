@@ -220,7 +220,7 @@ If given, toggle all entries that start at INDENT-LEVEL."
 
 ;; For this feature, you need to install discover.el
 ;; https://www.github.com/mickeynp/discover.el
-(when (boundp 'discover-add-context-menu)
+(when (fboundp 'discover-add-context-menu)
   (discover-add-context-menu
    :context-menu '(yafolding
 		   (description "folding based on indentation")
