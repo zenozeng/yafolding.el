@@ -1,12 +1,13 @@
-;;; yafolding.el --- Yet another folding extension for Emacs
+;;; yafolding.el --- Yet another folding extension
 
 ;; Copyright (C) 2013-2017 Zeno Zeng
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
-;; keywords: folding
-;; Time-stamp: <2017-03-05 11:16:23 Zeno Zeng>
-;; Version: 0.4.0
+;; URL: http://github.com/vindarel/yafolding.el
+;; keywords: tools convenience folding
+;; Version: 0.5.0
 
+;;; License:
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -23,7 +24,7 @@
 
 ;;; Commentary:
 
-;; Folding code blocks based on indentation
+;; Folding code blocks based on indentation.
 
 ;;; Code:
 
