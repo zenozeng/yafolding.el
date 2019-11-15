@@ -1,12 +1,13 @@
-;;; yafolding.el --- Yet another folding extension for Emacs
+;;; yafolding.el --- Yet another folding extension
 
 ;; Copyright (C) 2013-2017 Zeno Zeng
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
-;; keywords: folding
-;; Time-stamp: <2017-03-05 11:16:23 Zeno Zeng>
-;; Version: 0.4.0
+;; URL: http://github.com/vindarel/yafolding.el
+;; keywords: tools convenience folding
+;; Version: 0.5.0
 
+;;; License:
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -23,11 +24,9 @@
 
 ;;; Commentary:
 
-;; Folding code blocks based on indentation
+;; Folding code blocks based on indentation.
 
 ;;; Code:
-
-(declare-function discover-add-context-menu "discover")
 
 (defgroup yafolding nil
   "Fold code blocks based on indentation level"
@@ -217,26 +216,6 @@ If given, toggle all entries that start at INDENT-LEVEL."
   (ignore-errors
     (yafolding-go-parent-element)
     (yafolding-hide-element)))
-
-;; For this feature, you need to install discover.el
-;; https://www.github.com/mickeynp/discover.el
-(when (boundp 'discover-add-context-menu)
-  (discover-add-context-menu
-   :context-menu '(yafolding
-		   (description "folding based on indentation")
-		   (actions
-		    ("yafolding"
-		     ("h" "hide element" yafolding-hide-element)
-		     ("s" "show element" yafolding-show-element)
-		     ("t" "toggle element" yafolding-toggle-element)
-		     ("H" "hide all" yafolding-hide-all)
-		     ("S" "show all" yafolding-show-all)
-		     ("T" "toggle all" yafolding-toggle-all)
-		     ("p" "go parent element" yafolding-go-parent-element)
-		     ("P" "hide parent element" yafolding-hide-parent-element)
-		     ("m" "mode" yafolding-mode)))))
-
-  (defalias 'yafolding-discover 'makey-key-mode-popup-yafolding))
 
 ;;;###autoload
 (defvar yafolding-mode-map

@@ -15,20 +15,10 @@ Folding code blocks based on indentation.
 (defvar yafolding-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "<C-S-return>") #'yafolding-hide-parent-element)
-    (define-key map (kbd "<C-M-return>") #'yafolding-toggle-all)
+    (define-key map (kbd "<C-M-return>") #'yafolding-toggle-all) ;; beware, that closes the session on some linux.
     (define-key map (kbd "<C-return>") #'yafolding-toggle-element)
     map))
 ```
-
-### Discover commands with a context menu
-
-Call `M-x yafolding-discover` to have a magit-like context menu that
-displays the available commands. This feature relies on
-[discover.el](https://www.github.com/mickeynp/discover.el).
-
-To give it a keybinding:
-
-    (global-set-key (kbd "s-d y") 'yafolding-discover)
 
 ### Hook into prog-mode-hook
 
@@ -48,6 +38,33 @@ To give it a keybinding:
 (define-key yafolding-mode-map (kbd "C-c <C-S-return>") 'yafolding-hide-parent-element)
 (define-key yafolding-mode-map (kbd "C-c <C-return>") 'yafolding-toggle-element)
 ```
+
+### Discover commands with a context menu
+
+The [hydra](https://github.com/abo-abo/hydra/) package allows to
+display the available commands at once in a magit-like context menu,
+and to choose one with a keystroke.
+
+You can copy the following snippet in your init file and call it with
+`M-x yafolding-hydra/body`.
+
+```lisp
+(defhydra yafolding-hydra (:color blue :columns 3)
+  "Fold code based on indentation levels."
+  ("t" yafolding-toggle-element "toggle element")
+  ("s" yafolding-show-element "show element")
+  ("h" yafolding-hide-element "hide element")
+  ("T" yafolding-toggle-all "toggle all")
+  ("S" yafolding-show-all "show all")
+  ("H" yafolding-hide-all "hide all")
+  ("p" yafolding-hide-parent-element "hide parent element")
+  ("i" yafolding-get-indent-level "get indent level")
+  ("g" yafolding-go-parent-element "go parent element"))
+```
+
+To give it a keybinding:
+
+    (global-set-key (kbd "C-c f") 'yafolding-hydra/body)
 
 ## Known Issue
 
