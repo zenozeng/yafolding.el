@@ -5,7 +5,7 @@
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
 ;; Time-stamp: <2017-03-05 11:16:23 Zeno Zeng>
-;; Version: 0.4.0
+;; Version: 0.4.1
 
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -36,8 +36,8 @@
   :group 'applications)
 
 (defface yafolding-ellipsis-face
-  '()
-  "Face for folded blocks"
+  '((t :inherit 'font-lock-comment-face))
+  "Face for yafolding-ellipsis-content that replaces folded blocks"
   :group 'yafolding)
 
 (defcustom yafolding-ellipsis-content "..."
