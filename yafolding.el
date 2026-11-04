@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2026-11-04 10:57:03 EST, updated by Pierre Rouleau>
+;; Time-stamp: <2026-11-04 11:39:35 EST, updated by Pierre Rouleau>
 ;; Version: 0.4.0
 
 
@@ -53,6 +53,10 @@
   :type 'boolean
   :group 'yafolding)
 
+(defvar-local yafolding--folded-p nil
+  "Non-nil if yafolding overlays existed at the last state update.
+Do not set this variable directly.")
+
 (defun yafolding-get-overlays (beg end)
   "Get all overlays between BEG and END."
   (delq nil
@@ -87,14 +91,36 @@
               (setq indent-level (+ 1 indent-level)))))
         indent-level)))
 
+(defun yafolding--update-folded-p ()
+  "Refresh and return the folding state of the entire current buffer."
+  (setq yafolding--folded-p
+        (save-restriction
+          (widen)
+          (and (yafolding-get-overlays (point-min) (point-max)) t))))
+
 (defun yafolding-show-region (beg end)
   "Delete all yafolding overlays between BEG and END."
-  (mapcar 'delete-overlay (yafolding-get-overlays beg end)))
+  (prog1
+      (mapcar #'delete-overlay (yafolding-get-overlays beg end))
+    (yafolding--update-folded-p)))
 
 (defun yafolding-show-all ()
   "Delete all yafolding overlays."
   (interactive)
-  (yafolding-show-region (point-min) (point-max)))
+  (save-restriction
+    (widen)
+    (yafolding-show-region (point-min) (point-max))))
+
+(defun yafolding--before-delete-trailing-whitespace (&rest _args)
+  "Remove current-buffer folds before whitespace scanning starts."
+  (when (local-variable-p 'yafolding--folded-p)
+    (yafolding--update-folded-p)
+    (when yafolding--folded-p
+      (save-excursion
+        (yafolding-show-all)))))
+
+(advice-add 'delete-trailing-whitespace :before
+            #'yafolding--before-delete-trailing-whitespace)
 
 (defun yafolding-hide-all (&optional indent-level)
   "Hide all elements based on INDENT-LEVEL."
@@ -104,11 +130,11 @@
   (save-excursion
     (goto-char (point-min))
     (while (< (line-number-at-pos)
-            (line-number-at-pos (point-max)))
+              (line-number-at-pos (point-max)))
       (if (and (= (yafolding-get-indent-level) indent-level)
-             (not (yafolding-should-ignore-current-line-p)))
-        (yafolding-hide-element))
-    (forward-line 1))))
+               (not (yafolding-should-ignore-current-line-p)))
+          (yafolding-hide-element))
+      (forward-line 1))))
 
 (defun yafolding-toggle-all (&optional indent-level)
   "Toggle folding of the entire file.
@@ -142,9 +168,11 @@ If given, toggle all entries that start at INDENT-LEVEL."
         (overlay-put new-overlay 'evaporate t)
         (overlay-put new-overlay 'modification-hooks
                      (list (lambda (overlay &optional _a _b _c _d)
-                             (delete-overlay overlay))))
+                             (delete-overlay overlay)
+                             (yafolding--update-folded-p))))
         (overlay-put new-overlay 'before-string before-string)
-        (overlay-put new-overlay 'category "yafolding"))))
+        (overlay-put new-overlay 'category "yafolding")
+        (setq yafolding--folded-p t))))
 
 
 (defun yafolding--current-indentation ()
