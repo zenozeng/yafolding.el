@@ -1,10 +1,10 @@
-;;; yafolding.el --- Yet another folding extension for Emacs
+;;; yafolding.el --- Yet another folding extension for Emacs -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2013-2017 Zeno Zeng
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2017-03-05 11:16:23 Zeno Zeng>
+;; Time-stamp: <2026-11-04 10:41:53 EST, updated by Pierre Rouleau>
 ;; Version: 0.4.0
 
 
@@ -141,10 +141,17 @@ If given, toggle all entries that start at INDENT-LEVEL."
         (overlay-put new-overlay 'intangible t)
         (overlay-put new-overlay 'evaporate t)
         (overlay-put new-overlay 'modification-hooks
-                     (list (lambda (overlay &optional a b c d)
+                     (list (lambda (overlay &optional _a _b _c _d)
                              (delete-overlay overlay))))
         (overlay-put new-overlay 'before-string before-string)
         (overlay-put new-overlay 'category "yafolding"))))
+
+
+(defun yafolding--current-indentation ()
+  "Determine indentation in (possibly invisible) current line."
+  (save-excursion
+    (back-to-indentation)
+    (current-column)))
 
 (defun yafolding-debug ()
   "Show yafolding information of the current position."
@@ -158,19 +165,25 @@ If given, toggle all entries that start at INDENT-LEVEL."
            (line-number-at-pos (car (yafolding-get-element-region)))
            (line-number-at-pos (car (cdr (yafolding-get-element-region))))))
 
+(defun yafolding--next-line ()
+  "Move cursor down 1 line over the same column, like `next-line'."
+  (let ((target-col (current-column)))
+  (when (= 0 (forward-line 1))
+    (move-to-column target-col))))
+
 (defun yafolding-get-element-region ()
-  "Get '(beg end) of current element."
+  "Get \\='(beg end) of current element."
   (let ((beg (line-end-position))
         (end (line-end-position))
         (indentation (current-indentation)))
     (save-excursion
-      (next-line)
+      (yafolding--next-line)
       (while (and (< (line-number-at-pos) (line-number-at-pos (point-max)))
                   (or (> (current-indentation) indentation)
                       (yafolding-should-ignore-current-line-p)))
         (unless (yafolding-should-ignore-current-line-p)
           (setq end (line-end-position)))
-        (next-line))) ; using next-line instead of forward-line, for issue#23
+        (yafolding--next-line)))
     (list beg end)))
 
 (defun yafolding-hide-element ()
