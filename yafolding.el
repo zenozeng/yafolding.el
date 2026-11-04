@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2026-11-04 11:39:35 EST, updated by Pierre Rouleau>
+;; Time-stamp: <2026-11-04 13:26:29 EST, updated by Pierre Rouleau>
 ;; Version: 0.4.0
 
 
@@ -55,7 +55,13 @@
 
 (defvar-local yafolding--folded-p nil
   "Non-nil if yafolding overlays existed at the last state update.
+The buffer-local binding survives normal major-mode changes so that
+whitespace cleanup can detect folds that survive those changes.
 Do not set this variable directly.")
+
+;; Fold overlays can survive a major-mode change.
+;; Preserve the local binding used by the whitespace-cleanup guard.
+(put 'yafolding--folded-p 'permanent-local t)
 
 (defun yafolding-get-overlays (beg end)
   "Get all overlays between BEG and END."
@@ -111,16 +117,60 @@ Do not set this variable directly.")
     (widen)
     (yafolding-show-region (point-min) (point-max))))
 
-(defun yafolding--before-delete-trailing-whitespace (&rest _args)
-  "Remove current-buffer folds before whitespace scanning starts."
-  (when (local-variable-p 'yafolding--folded-p)
-    (yafolding--update-folded-p)
-    (when yafolding--folded-p
-      (save-excursion
-        (yafolding-show-all)))))
+;; The goal is compatibility in both directions:
+;;
+;; Folding must not change which text `delete-trailing-whitespace' deletes.
+;; Automatic whitespace cleanup should not remove folds unnecessarily.
+;; After cleanup, yafolding commands must continue to work.
+;;
+;; - If yafolding has never touched the current buffer, call the original
+;;   function directly. Perform only the local-binding check.
+;; - If the buffer has yafolding overlays, save the relevant overlay
+;;   properties.
+;; - Temporarily disable the overlays’ intangible behavior and their
+;;   fold-removal modification hooks.
+;; - Call the original delete-trailing-whitespace with its original arguments
+;;   and narrowing.
+;; - Use unwind-protect to restore the saved properties, including after an
+;;   error or quit.
+;; - Refresh the folding-state variable after cleanup.
 
-(advice-add 'delete-trailing-whitespace :before
-            #'yafolding--before-delete-trailing-whitespace)
+(defun yafolding--around-delete-trailing-whitespace (original-fct &rest args)
+  "Call ORIGINAL-FCT with ARGS while preserving current-buffer folds.
+Temporarily disable each yafolding overlay's `intangible' property
+and modification hooks.  Restore those properties even if cleanup
+exits abnormally.  Overlay bounds follow text deletions normally.
+If cleanup deletes all text in a fold, its overlay can evaporate."
+  (if (not (local-variable-p 'yafolding--folded-p))
+      (apply original-fct args)
+    (let* ((buffer (current-buffer))
+           (saved
+            (save-restriction
+              (widen)
+              (mapcar
+               (lambda (overlay)
+                 (list overlay
+                       (overlay-get overlay 'intangible)
+                       (overlay-get overlay 'modification-hooks)))
+               (yafolding-get-overlays (point-min) (point-max))))))
+      (unwind-protect
+          (progn
+            ;; Keep visibility and overlay bounds unchanged here.
+            ;; Disable only the saved yafolding overlays' properties.
+            (dolist (state saved)
+              (overlay-put (car state) 'intangible nil)
+              (overlay-put (car state) 'modification-hooks nil))
+            (apply original-fct args))
+        ;; Restore properties without recreating deleted overlays.
+        (dolist (state saved)
+          (overlay-put (car state) 'intangible (nth 1 state))
+          (overlay-put (car state) 'modification-hooks (nth 2 state)))
+        (when (buffer-live-p buffer)
+          (with-current-buffer buffer
+            (yafolding--update-folded-p)))))))
+
+(advice-add 'delete-trailing-whitespace :around
+            #'yafolding--around-delete-trailing-whitespace)
 
 (defun yafolding-hide-all (&optional indent-level)
   "Hide all elements based on INDENT-LEVEL."
@@ -156,23 +206,26 @@ If given, toggle all entries that start at INDENT-LEVEL."
 (defun yafolding-hide-region (beg end)
   "Hide region between BEG and END."
   (when (> end beg)
-      (yafolding-show-region beg end)
-      (let ((before-string
-             (concat
-              (when yafolding-show-fringe-marks
-                (propertize " " 'display '(left-fringe right-triangle)))
-              (yafolding-ellipsis)))
-            (new-overlay (make-overlay beg end)))
-        (overlay-put new-overlay 'invisible t)
-        (overlay-put new-overlay 'intangible t)
-        (overlay-put new-overlay 'evaporate t)
-        (overlay-put new-overlay 'modification-hooks
-                     (list (lambda (overlay &optional _a _b _c _d)
-                             (delete-overlay overlay)
-                             (yafolding--update-folded-p))))
-        (overlay-put new-overlay 'before-string before-string)
-        (overlay-put new-overlay 'category "yafolding")
-        (setq yafolding--folded-p t))))
+    ;; Remove overlapping folds without refreshing whole-buffer state.
+    ;; Creating the replacement fold below sets `yafolding--folded-p'.
+    (mapc #'delete-overlay
+          (yafolding-get-overlays beg end))
+    (let ((before-string
+           (concat
+            (when yafolding-show-fringe-marks
+              (propertize " " 'display '(left-fringe right-triangle)))
+            (yafolding-ellipsis)))
+          (new-overlay (make-overlay beg end)))
+      (overlay-put new-overlay 'invisible t)
+      (overlay-put new-overlay 'intangible t)
+      (overlay-put new-overlay 'evaporate t)
+      (overlay-put new-overlay 'modification-hooks
+                   (list (lambda (overlay &optional _a _b _c _d)
+                           (delete-overlay overlay)
+                           (yafolding--update-folded-p))))
+      (overlay-put new-overlay 'before-string before-string)
+      (overlay-put new-overlay 'category "yafolding")
+      (setq yafolding--folded-p t))))
 
 
 (defun yafolding--current-indentation ()
