@@ -4,7 +4,7 @@
 
 ;; Author: Zeno Zeng <zenoofzeng@gmail.com>
 ;; keywords: folding
-;; Time-stamp: <2026-11-04 13:26:29 EST, updated by Pierre Rouleau>
+;; Time-stamp: <2026-11-04 13:37:36 EST, updated by Pierre Rouleau>
 ;; Version: 0.4.0
 
 
@@ -117,6 +117,10 @@ Do not set this variable directly.")
     (widen)
     (yafolding-show-region (point-min) (point-max))))
 
+;; --
+;; Support for delete-trailing-whitespace
+;; --------------------------------------
+;;
 ;; The goal is compatibility in both directions:
 ;;
 ;; Folding must not change which text `delete-trailing-whitespace' deletes.
@@ -143,26 +147,26 @@ exits abnormally.  Overlay bounds follow text deletions normally.
 If cleanup deletes all text in a fold, its overlay can evaporate."
   (if (not (local-variable-p 'yafolding--folded-p))
       (apply original-fct args)
+    ;; yafolding commands were executed in current buffer.
     (let* ((buffer (current-buffer))
-           (saved
-            (save-restriction
-              (widen)
-              (mapcar
-               (lambda (overlay)
-                 (list overlay
-                       (overlay-get overlay 'intangible)
-                       (overlay-get overlay 'modification-hooks)))
-               (yafolding-get-overlays (point-min) (point-max))))))
+           (saved-ovrls (save-restriction
+                          (widen)
+                          (mapcar
+                           (lambda (overlay)
+                             (list overlay
+                                   (overlay-get overlay 'intangible)
+                                   (overlay-get overlay 'modification-hooks)))
+                           (yafolding-get-overlays (point-min) (point-max))))))
       (unwind-protect
           (progn
             ;; Keep visibility and overlay bounds unchanged here.
-            ;; Disable only the saved yafolding overlays' properties.
-            (dolist (state saved)
+            ;; Disable only the saved-ovrls yafolding overlays' properties.
+            (dolist (state saved-ovrls)
               (overlay-put (car state) 'intangible nil)
               (overlay-put (car state) 'modification-hooks nil))
             (apply original-fct args))
         ;; Restore properties without recreating deleted overlays.
-        (dolist (state saved)
+        (dolist (state saved-ovrls)
           (overlay-put (car state) 'intangible (nth 1 state))
           (overlay-put (car state) 'modification-hooks (nth 2 state)))
         (when (buffer-live-p buffer)
