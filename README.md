@@ -49,20 +49,6 @@ To give it a keybinding:
 (define-key yafolding-mode-map (kbd "C-c <C-return>") 'yafolding-toggle-element)
 ```
 
-## Known Issue
-
-### data loss on delete-trailing-whitespace
-
-use this instead:
-
-```emacs-lisp
-(lambda ()
-    (yafolding-show-all)
-    (delete-trailing-whitespace))
-```
-
-see also: https://github.com/zenozeng/yafolding.el/issues/13
-
 ## Licensing
 
 This program is free software; you can redistribute it and/or modify
